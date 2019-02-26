@@ -414,13 +414,19 @@ static mdf_err_t mlink_set_value(uint16_t cid, void *arg)
         case LIGHT_CID_HUE:
             light_driver_set_hue(value);
             SSD1306_FontDrawAnchoredString( &I2CDisplay, TextAnchor_North, "Color-Wheel angle", SSD_COLOR_WHITE );
-            textToDisplay(&I2CDisplay, valueChar);
+            SSD1306_DrawBox( &I2CDisplay, 0, 15, value/3, 20, SSD_COLOR_WHITE, true);
+            // BS Does not work: (to put color initials RGB under progress bar)
+            /* char color = "R";
+            SSD1306_FontDrawChar( &I2CDisplay, color, 120, 30, SSD_COLOR_WHITE);
+            color = "G";
+            SSD1306_FontDrawChar( &I2CDisplay, color, 60, 30, SSD_COLOR_WHITE);
+            color = "B";
+            SSD1306_FontDrawChar( &I2CDisplay, color, 90, 30, SSD_COLOR_WHITE);
+            textToDisplay(&I2CDisplay, valueChar); */
             break;
 
         case LIGHT_CID_SATURATION:
             light_driver_set_saturation(value);
-            SSD1306_FontDrawAnchoredString( &I2CDisplay, TextAnchor_North, "Saturation", SSD_COLOR_WHITE );
-            textToDisplay(&I2CDisplay, valueChar);
             break;
 
         case LIGHT_CID_VALUE:
@@ -429,13 +435,10 @@ static mdf_err_t mlink_set_value(uint16_t cid, void *arg)
 
         case LIGHT_CID_COLOR_TEMPERATURE:
             light_driver_set_color_temperature(value);
-            SSD1306_FontDrawAnchoredString( &I2CDisplay, TextAnchor_North, "Color temperature", SSD_COLOR_WHITE );
-            textToDisplay(&I2CDisplay, valueChar);
             break;
 
         case LIGHT_CID_BRIGHTNESS:
             light_driver_set_brightness(value);
-            // Trying to make a box didn't work like this:
             SSD1306_DrawBox( &I2CDisplay, 0, 12, value, 15, SSD_COLOR_WHITE, true);
             SSD1306_FontDrawAnchoredString( &I2CDisplay, TextAnchor_North, "White brightness", SSD_COLOR_WHITE );
             textToDisplay(&I2CDisplay, valueChar);
