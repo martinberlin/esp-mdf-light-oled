@@ -414,7 +414,7 @@ static mdf_err_t mlink_set_value(uint16_t cid, void *arg)
         case LIGHT_CID_HUE:
             light_driver_set_hue(value);
             SSD1306_FontDrawAnchoredString( &I2CDisplay, TextAnchor_North, "Color-Wheel angle", SSD_COLOR_WHITE );
-            SSD1306_DrawBox( &I2CDisplay, 0, 15, value/3, 20, SSD_COLOR_WHITE, true);
+            SSD1306_DrawBox( &I2CDisplay, 0, 15, value/3, 21, SSD_COLOR_WHITE, true);
             textToDisplay(&I2CDisplay, valueChar); 
             // BS Does not work: (to put color initials RGB under progress bar)
             /* char color = "R";
@@ -440,7 +440,7 @@ static mdf_err_t mlink_set_value(uint16_t cid, void *arg)
 
         case LIGHT_CID_BRIGHTNESS:
             light_driver_set_brightness(value);
-            SSD1306_DrawBox( &I2CDisplay, 0, 12, value, 15, SSD_COLOR_WHITE, true);
+            SSD1306_DrawBox( &I2CDisplay, 0, 15, value, 21, SSD_COLOR_WHITE, true);
             SSD1306_FontDrawAnchoredString( &I2CDisplay, TextAnchor_North, "White brightness", SSD_COLOR_WHITE );
             textToDisplay(&I2CDisplay, valueChar);
             break;
