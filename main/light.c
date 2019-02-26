@@ -26,7 +26,6 @@
 #include "mwifi.h"
 #include "mlink.h"
 #include "mupgrade.h"
-
 #include "mespnow.h"
 #include "mconfig_blufi.h"
 #include "mconfig_chain.h"
@@ -310,8 +309,14 @@ static mdf_err_t light_show_layer(mlink_handle_data_t *handle_data)
 static mdf_err_t mlink_set_value(uint16_t cid, void *arg)
 {
     int value = *((int *)arg);
+
+    char valueChar[4];
+    sprintf(valueChar, "%d", value);
+   
+    //MDF_LOGD("++++ TEST value: %s ", valueChar);
+
     SSD1306_Clear(&I2CDisplay, 0x00);
-    
+
     switch (cid) {
         case LIGHT_CID_STATUS:
             switch (value) {
@@ -332,6 +337,8 @@ static mdf_err_t mlink_set_value(uint16_t cid, void *arg)
                 case LIGHT_STATUS_HUE: {
                     uint16_t hue = light_driver_get_hue();
                     hue = (hue + 60) % 360;
+
+                    //textToDisplay(&I2CDisplay, valueChar);
                     break;
                 }
 
@@ -343,7 +350,7 @@ static mdf_err_t mlink_set_value(uint16_t cid, void *arg)
                         uint8_t brightness = (light_driver_get_brightness() + 20) % 100;
                         light_driver_set_brightness(brightness);
                     }
-
+                    textToDisplay(&I2CDisplay, valueChar);
                     break;
                 }
 
@@ -355,7 +362,6 @@ static mdf_err_t mlink_set_value(uint16_t cid, void *arg)
                     }
 
                     light_driver_set_color_temperature(color_temperature);
-
                     break;
                 }
 
@@ -413,6 +419,12 @@ static mdf_err_t mlink_set_value(uint16_t cid, void *arg)
 
         case LIGHT_CID_HUE:
             light_driver_set_hue(value);
+            textToDisplay(&I2CDisplay, valueChar);
+            SSD1306_FontDrawChar(&I2CDisplay, "R", 2, 40, 0xFF);
+            SSD1306_FontDrawChar(&I2CDisplay, "G", 60, 40, 0xFF);
+            SSD1306_FontDrawChar(&I2CDisplay, "B", 119, 40, 0xFF);
+
+            SSD1306_Update(&I2CDisplay);
             break;
 
         case LIGHT_CID_SATURATION:
@@ -429,6 +441,8 @@ static mdf_err_t mlink_set_value(uint16_t cid, void *arg)
 
         case LIGHT_CID_BRIGHTNESS:
             light_driver_set_brightness(value);
+            SSD1306_FontDrawChar(&I2CDisplay, "B", 40, 40, 0xFF);
+            textToDisplay(&I2CDisplay, valueChar);
             break;
 
         default:
