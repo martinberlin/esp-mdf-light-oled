@@ -312,9 +312,6 @@ static mdf_err_t mlink_set_value(uint16_t cid, void *arg)
 
     char valueChar[4];
     sprintf(valueChar, "%d", value);
-   
-    //MDF_LOGD("++++ TEST value: %s ", valueChar);
-
     SSD1306_Clear(&I2CDisplay, 0x00);
 
     switch (cid) {
@@ -337,8 +334,8 @@ static mdf_err_t mlink_set_value(uint16_t cid, void *arg)
                 case LIGHT_STATUS_HUE: {
                     uint16_t hue = light_driver_get_hue();
                     hue = (hue + 60) % 360;
-
-                    //textToDisplay(&I2CDisplay, valueChar);
+                    //MDF_LOGD("+++ hue: %s ", valueChar);
+                    //vTaskDelay(2);
                     break;
                 }
 
@@ -350,7 +347,6 @@ static mdf_err_t mlink_set_value(uint16_t cid, void *arg)
                         uint8_t brightness = (light_driver_get_brightness() + 20) % 100;
                         light_driver_set_brightness(brightness);
                     }
-                    textToDisplay(&I2CDisplay, valueChar);
                     break;
                 }
 
@@ -360,7 +356,6 @@ static mdf_err_t mlink_set_value(uint16_t cid, void *arg)
                     if (!light_driver_get_brightness()) {
                         light_driver_set_brightness(30);
                     }
-
                     light_driver_set_color_temperature(color_temperature);
                     break;
                 }
@@ -403,7 +398,6 @@ static mdf_err_t mlink_set_value(uint16_t cid, void *arg)
                     if (!light_driver_get_brightness()) {
                         light_driver_set_brightness(30);
                     }
-
                     light_driver_fade_warm(0);
                     break;
 
@@ -419,12 +413,8 @@ static mdf_err_t mlink_set_value(uint16_t cid, void *arg)
 
         case LIGHT_CID_HUE:
             light_driver_set_hue(value);
+            SSD1306_FontDrawAnchoredString( &I2CDisplay, TextAnchor_North, "Color-Wheel angle", SSD_COLOR_WHITE );
             textToDisplay(&I2CDisplay, valueChar);
-            SSD1306_FontDrawChar(&I2CDisplay, "R", 2, 40, 0xFF);
-            SSD1306_FontDrawChar(&I2CDisplay, "G", 60, 40, 0xFF);
-            SSD1306_FontDrawChar(&I2CDisplay, "B", 119, 40, 0xFF);
-
-            SSD1306_Update(&I2CDisplay);
             break;
 
         case LIGHT_CID_SATURATION:
@@ -441,7 +431,9 @@ static mdf_err_t mlink_set_value(uint16_t cid, void *arg)
 
         case LIGHT_CID_BRIGHTNESS:
             light_driver_set_brightness(value);
-            SSD1306_FontDrawChar(&I2CDisplay, "B", 40, 40, 0xFF);
+            // Trying to make a box didn't work like this:
+            //SSD1306_DrawBox( &I2CDisplay, 0, 10, value/1.4, 10, SSD_COLOR_WHITE, true);
+            SSD1306_FontDrawAnchoredString( &I2CDisplay, TextAnchor_North, "Brightness", SSD_COLOR_WHITE );
             textToDisplay(&I2CDisplay, valueChar);
             break;
 
