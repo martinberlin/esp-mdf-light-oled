@@ -310,14 +310,19 @@ static mdf_err_t light_show_layer(mlink_handle_data_t *handle_data)
 static mdf_err_t mlink_set_value(uint16_t cid, void *arg)
 {
     int value = *((int *)arg);
-
+    SSD1306_Clear(&I2CDisplay, 0x00);
+    
     switch (cid) {
         case LIGHT_CID_STATUS:
             switch (value) {
                 case LIGHT_STATUS_ON:
                 case LIGHT_STATUS_OFF:
                     light_driver_set_switch(value);
-
+                    char * text = "OFF";
+                    if (value == 1) {
+                      text = "ON";
+                    }
+                    textToDisplay( &I2CDisplay, text );
                     break;
 
                 case LIGHT_STATUS_SWITCH:
@@ -877,7 +882,7 @@ void app_main()
     } else {
         SSD1306_I2CMasterAttachDisplayDefault( &I2CDisplay, I2CDisplayWidth, I2CDisplayHeight, I2CDisplayAddress, I2CResetPin ) ;
     }
-    setupDisplay( &I2CDisplay, &Font_droid_sans_fallback_24x28 );
+    setupDisplay( &I2CDisplay, &Font_droid_sans_fallback_11x13 );
 
     /**
      * @brief Continuous power off and restart more than three times to reset the device
