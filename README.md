@@ -10,7 +10,7 @@ Martin Fork: I started this repository as my humble attempt to start coding dire
 KEEP IN MIND: That I'm using a Heltec WiFi32 for this example that has a 26Mhz crystal instead of a 40Mhz so in the menuconfig is configurable like this:
 
     $ make menuconfig:
-    components -> esp32-specifc -> main xtal frequency -> I set this to 26 Mhz
+    Components -> ESP32-Specific -> Main XTAL frequency -> 26 Mhz for this boards or 40 Mhz for others (Wemos, etc)
 
 
 > Note: This example is not limited to ESP32-MeshKit-Light, and can also be applied to an ESP32 module connected to an external LED.
