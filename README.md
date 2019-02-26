@@ -23,7 +23,7 @@ KEEP IN MIND: That I'm using a Heltec WiFi32 for this example that has a 26Mhz c
 1. Inside View and Pin Layout
 
 <div align=center>
-<img src="../docs/_static/light_module.png"  width="400">
+<img src="https://raw.githubusercontent.com/espressif/esp-mdf/master/examples/development_kit/docs/_static/light_module.png" width="400">
 <p> Inside View </p>
 </div>
 
