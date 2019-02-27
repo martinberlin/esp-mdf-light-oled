@@ -415,15 +415,8 @@ static mdf_err_t mlink_set_value(uint16_t cid, void *arg)
             light_driver_set_hue(value);
             SSD1306_FontDrawAnchoredString( &I2CDisplay, TextAnchor_North, "Color-Wheel angle", SSD_COLOR_WHITE );
             SSD1306_DrawBox( &I2CDisplay, 0, 15, value/3, 21, SSD_COLOR_WHITE, true);
-            textToDisplay(&I2CDisplay, valueChar); 
-            // BS Does not work: (to put color initials RGB under progress bar)
-            /* char color = "R";
-            SSD1306_FontDrawChar( &I2CDisplay, color, 120, 30, SSD_COLOR_WHITE);
-            color = "G";
-            SSD1306_FontDrawChar( &I2CDisplay, color, 60, 30, SSD_COLOR_WHITE);
-            color = "B";
-            SSD1306_FontDrawChar( &I2CDisplay, color, 90, 30, SSD_COLOR_WHITE);
-            */
+            SSD1306_FontDrawAnchoredString( &I2CDisplay, TextAnchor_South, "R      G     B   R", SSD_COLOR_WHITE );
+            textToDisplay(&I2CDisplay, valueChar);
             break;
 
         case LIGHT_CID_SATURATION:
@@ -934,8 +927,9 @@ void app_main()
         MDF_LOGI("mconfig, ssid: %s, password: %s, mesh_id: " MACSTR,
                  ap_config.router_ssid, ap_config.router_password,
                  MAC2STR(ap_config.mesh_id));
-   
-        textToDisplay( &I2CDisplay, "ESP-MESH Light\nConnect w/ESP-Mesh App" );
+        SSD1306_FontDrawAnchoredString(&I2CDisplay, TextAnchor_South, "Light waiting config", SSD_COLOR_WHITE );
+        SSD1306_FontDrawAnchoredString(&I2CDisplay, TextAnchor_South, "Bluetooth ready", SSD_COLOR_WHITE );
+        textToDisplay(&I2CDisplay, "Connect ESP-Mesh App" );
     }
 
     /**
@@ -971,7 +965,7 @@ void app_main()
      * @brief Add a request handler
      */
     MDF_ERROR_ASSERT(mlink_set_handle("show_layer", light_show_layer));
-    textToDisplay( &I2CDisplay, "ESP-MESH Light\nReady" );
+    textToDisplay( &I2CDisplay, "ESP-MESH Light" );
     /**
      * @brief Initialize esp-mesh
      */
