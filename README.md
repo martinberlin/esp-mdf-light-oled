@@ -2,16 +2,18 @@
 
 # ESP32-MeshKit-Light
 
-## Overview
-
-ESP32-MeshKit-Light is a smart lighting solution based on [ESP-MESH](https://docs.espressif.com/projects/esp-idf/en/latest/api-guides/mesh.html). It features network configuration, upgrade, local control, device association, etc., and will facilitate your understanding of ESP-MESH to implement further development. Before running this example, please refer to [ESP32-MeshKit Guide](../README.md).
-
-Martin Fork: I started this repository as my humble attempt to start coding directly in ESP-IDF as a framework instead of using the Arduino Framework. As a background note, I started designing and 3D-printing my own LED Lamps and at the same time I started a [Mesh Light project in hackaday.io](https://hackaday.io/project/163672-esp32-meshkit-unexpensive-rgb-led-lamps) 
+## Mission of this Repository
+This is my humble attempt to start coding directly in ESP-IDF as a framework instead of using the Arduino Framework. As a background note, I started designing and 3D-printing my own LED Lamps and at the same time I started a [Mesh Light project in hackaday.io](https://hackaday.io/project/163672-esp32-meshkit-unexpensive-rgb-led-lamps) 
 KEEP IN MIND: That I'm using a Heltec WiFi32 for this example that has a 26Mhz crystal instead of a 40Mhz so in the menuconfig is configurable like this:
 
     $ make menuconfig:
     Components -> ESP32-Specific -> Main XTAL frequency -> 26 Mhz for this boards or 40 Mhz for others (Wemos, etc)
 
+I didn't want to Fork a ESP-MDF and keep only a minimal "Light example" that's why I'm leaving branch **master** as is and doing my updates in [develop](https://github.com/martinberlin/esp-mdf-light-oled/tree/develop) branch. 
+
+## Overview
+
+ESP32-MeshKit-Light is a smart lighting solution based on [ESP-MESH](https://docs.espressif.com/projects/esp-idf/en/latest/api-guides/mesh.html). It features network configuration, upgrade, local control, device association, etc., and will facilitate your understanding of ESP-MESH to implement further development. Before running this example, please refer to [ESP32-MeshKit Guide](../README.md).
 
 > Note: This example is not limited to ESP32-MeshKit-Light, and can also be applied to an ESP32 module connected to an external LED.
 
@@ -23,7 +25,7 @@ KEEP IN MIND: That I'm using a Heltec WiFi32 for this example that has a 26Mhz c
 1. Inside View and Pin Layout
 
 <div align=center>
-<img src="../docs/_static/light_module.png"  width="400">
+<img src="https://raw.githubusercontent.com/espressif/esp-mdf/master/examples/development_kit/docs/_static/light_module.png" width="300">
 <p> Inside View </p>
 </div>
 
