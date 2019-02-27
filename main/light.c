@@ -77,7 +77,7 @@ enum light_status {
     LIGHT_STATUS_BRIGHTNESS        = 4,
     LIGHT_STATUS_COLOR_TEMPERATURE = 5,
 };
-
+int hueBrightnessValue;
 static const char *TAG                          = "light";
 static TaskHandle_t g_root_write_task_handle    = NULL;
 static TaskHandle_t g_root_read_task_handle     = NULL;
@@ -334,8 +334,6 @@ static mdf_err_t mlink_set_value(uint16_t cid, void *arg)
                 case LIGHT_STATUS_HUE: {
                     uint16_t hue = light_driver_get_hue();
                     hue = (hue + 60) % 360;
-                    //MDF_LOGD("+++ hue: %s ", valueChar);
-                    //vTaskDelay(2);
                     break;
                 }
 
@@ -413,9 +411,13 @@ static mdf_err_t mlink_set_value(uint16_t cid, void *arg)
 
         case LIGHT_CID_HUE:
             light_driver_set_hue(value);
-            SSD1306_FontDrawAnchoredString( &I2CDisplay, TextAnchor_North, "Color-Wheel angle", SSD_COLOR_WHITE );
+            char brightnessValue[4];
+            sprintf(brightnessValue, "%d", hueBrightnessValue);
+
+            SSD1306_FontDrawAnchoredString( &I2CDisplay, TextAnchor_North, "Color-Wheel angle", SSD_COLOR_WHITE);
             SSD1306_DrawBox( &I2CDisplay, 0, 15, value/3, 21, SSD_COLOR_WHITE, true);
-            SSD1306_FontDrawAnchoredString( &I2CDisplay, TextAnchor_South, "R      G     B   R", SSD_COLOR_WHITE );
+            SSD1306_FontDrawAnchoredString( &I2CDisplay, TextAnchor_South, "      G    B     R", SSD_COLOR_WHITE);
+            SSD1306_FontDrawAnchoredString( &I2CDisplay, TextAnchor_SouthWest, brightnessValue, SSD_COLOR_WHITE);
             textToDisplay(&I2CDisplay, valueChar);
             break;
 
@@ -425,6 +427,7 @@ static mdf_err_t mlink_set_value(uint16_t cid, void *arg)
 
         case LIGHT_CID_VALUE:
             light_driver_set_value(value);
+            hueBrightnessValue = value;
             break;
 
         case LIGHT_CID_COLOR_TEMPERATURE:
