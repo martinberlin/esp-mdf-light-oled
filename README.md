@@ -29,6 +29,8 @@ KEEP IN MIND: That I'm using a Heltec WiFi32 for this example that has a 26Mhz c
 
 2. Pin Definition
 
+Note: GPIOs for RGB PWM outputs where updated since this board uses 16 as reset Pin and also same Data/Clock as the older Red and Green channels, check new ones and modify them to any other you may need using: make menuconfig -> example configuration
+
 |No. | Name | Type | Description |
 | :----: | :----: | :----: |:---- |
 |1, 7| GND| P |   Ground   |
@@ -37,9 +39,9 @@ KEEP IN MIND: That I'm using a Heltec WiFi32 for this example that has a 26Mhz c
 |4 | GPIO33 | I/O | RTC 32K_XN (32.768 kHz crystal oscillator output); alternative for function expansion|
 |5 | GPIO0 | I/O| IC internal pull-up; alternative for function expansion |
 |6 | VDD3.3V | P | Power supply, 3V3   |
-|8 | GPIO4 | O | PWM_R output control |
-|9 | GPIO16 | O | PWM_G output control; alternate UART interface (URXD) |
-|10 | GPIO5 | O | PWM_B output control; alternate UART interface (UTXD) |
+|8 | GPIO2 | O | PWM_R output control (was 4 before) |
+|9 | GPIO17 | O | PWM_G output control |
+|10 | GPI18 | O | PWM_B output control |
 |11 | GPIO23 | O | PWM_BR output control |
 |12 | GPIO19 | O | PWM_CT output control |
 |13 | GPIO22 | I/O | Shared by PWM; alternative for function expansion |
