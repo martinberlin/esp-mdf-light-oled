@@ -893,7 +893,8 @@ void app_main()
         SSD1306_I2CMasterAttachDisplayDefault( &I2CDisplay, I2CDisplayWidth, I2CDisplayHeight, I2CDisplayAddress, I2CResetPin ) ;
     }
     setupDisplay( &I2CDisplay, &Font_droid_sans_fallback_11x13 );
-
+    SSD1306_SetHFlip(&I2CDisplay, true);
+    SSD1306_SetVFlip(&I2CDisplay, true);
     /**
      * @brief Continuous power off and restart more than three times to reset the device
      */
