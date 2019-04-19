@@ -26,12 +26,27 @@
 #include "mwifi.h"
 #include "mlink.h"
 #include "mupgrade.h"
-
 #include "mespnow.h"
 #include "mconfig_blufi.h"
 #include "mconfig_chain.h"
 
 #include "light_driver.h"
+// Oled library
+#include <stdio.h>
+#include <stdbool.h>
+#include <string.h>
+#include "ssd1306.h"
+#include "ssd1306_draw.h"
+#include "ssd1306_font.h"
+#include "ssd1306_default_if.h"
+
+#define USE_I2C_DISPLAY
+static const int I2CDisplayAddress = 0x3C;
+static const int I2CDisplayWidth = 128;
+static const int I2CDisplayHeight = 64;
+static const int I2CResetPin = 16;
+
+struct SSD1306_Device I2CDisplay;
 
 #define LIGHT_TID                     (1)
 #define LIGHT_RESTART_COUNT_RESET     (3)
@@ -62,11 +77,20 @@ enum light_status {
     LIGHT_STATUS_BRIGHTNESS        = 4,
     LIGHT_STATUS_COLOR_TEMPERATURE = 5,
 };
-
+int hueBrightnessValue;
 static const char *TAG                          = "light";
 static TaskHandle_t g_root_write_task_handle    = NULL;
 static TaskHandle_t g_root_read_task_handle     = NULL;
 static EventGroupHandle_t g_event_group_trigger = NULL;
+
+void setupDisplay( struct SSD1306_Device* DisplayHandle, const struct SSD1306_FontDef* Font ) {
+    SSD1306_Clear( DisplayHandle, SSD_COLOR_BLACK );
+    SSD1306_SetFont( DisplayHandle, Font );
+}
+void textToDisplay( struct SSD1306_Device* DisplayHandle, const char* text ) {
+    SSD1306_FontDrawAnchoredString( DisplayHandle, TextAnchor_Center, text, SSD_COLOR_WHITE );
+    SSD1306_Update( DisplayHandle );
+}
 
 static mdf_err_t wifi_init()
 {
@@ -286,12 +310,21 @@ static mdf_err_t mlink_set_value(uint16_t cid, void *arg)
 {
     int value = *((int *)arg);
 
+    char valueChar[4];
+    sprintf(valueChar, "%d", value);
+    SSD1306_Clear(&I2CDisplay, 0x00);
+
     switch (cid) {
         case LIGHT_CID_STATUS:
             switch (value) {
                 case LIGHT_STATUS_ON:
                 case LIGHT_STATUS_OFF:
                     light_driver_set_switch(value);
+                    char * text = "OFF";
+                    if (value == 1) {
+                      text = "ON";
+                    }
+                    textToDisplay( &I2CDisplay, text );
                     break;
 
                 case LIGHT_STATUS_SWITCH:
@@ -301,9 +334,6 @@ static mdf_err_t mlink_set_value(uint16_t cid, void *arg)
                 case LIGHT_STATUS_HUE: {
                     uint16_t hue = light_driver_get_hue();
                     hue = (hue + 60) % 360;
-
-                    light_driver_set_saturation(100);
-                    light_driver_set_hue(hue);
                     break;
                 }
 
@@ -315,7 +345,6 @@ static mdf_err_t mlink_set_value(uint16_t cid, void *arg)
                         uint8_t brightness = (light_driver_get_brightness() + 20) % 100;
                         light_driver_set_brightness(brightness);
                     }
-
                     break;
                 }
 
@@ -325,9 +354,7 @@ static mdf_err_t mlink_set_value(uint16_t cid, void *arg)
                     if (!light_driver_get_brightness()) {
                         light_driver_set_brightness(30);
                     }
-
                     light_driver_set_color_temperature(color_temperature);
-
                     break;
                 }
 
@@ -369,7 +396,6 @@ static mdf_err_t mlink_set_value(uint16_t cid, void *arg)
                     if (!light_driver_get_brightness()) {
                         light_driver_set_brightness(30);
                     }
-
                     light_driver_fade_warm(0);
                     break;
 
@@ -385,6 +411,14 @@ static mdf_err_t mlink_set_value(uint16_t cid, void *arg)
 
         case LIGHT_CID_HUE:
             light_driver_set_hue(value);
+            char brightnessValue[4];
+            sprintf(brightnessValue, "%d", hueBrightnessValue);
+
+            SSD1306_FontDrawAnchoredString( &I2CDisplay, TextAnchor_North, "Color-Wheel angle", SSD_COLOR_WHITE);
+            SSD1306_DrawBox( &I2CDisplay, 0, 15, value/3, 21, SSD_COLOR_WHITE, true);
+            SSD1306_FontDrawAnchoredString( &I2CDisplay, TextAnchor_South, "      G    B     R", SSD_COLOR_WHITE);
+            SSD1306_FontDrawAnchoredString( &I2CDisplay, TextAnchor_SouthWest, brightnessValue, SSD_COLOR_WHITE);
+            textToDisplay(&I2CDisplay, valueChar);
             break;
 
         case LIGHT_CID_SATURATION:
@@ -393,6 +427,7 @@ static mdf_err_t mlink_set_value(uint16_t cid, void *arg)
 
         case LIGHT_CID_VALUE:
             light_driver_set_value(value);
+            hueBrightnessValue = value;
             break;
 
         case LIGHT_CID_COLOR_TEMPERATURE:
@@ -401,6 +436,9 @@ static mdf_err_t mlink_set_value(uint16_t cid, void *arg)
 
         case LIGHT_CID_BRIGHTNESS:
             light_driver_set_brightness(value);
+            SSD1306_DrawBox( &I2CDisplay, 0, 15, value, 21, SSD_COLOR_WHITE, true);
+            SSD1306_FontDrawAnchoredString( &I2CDisplay, TextAnchor_North, "White brightness", SSD_COLOR_WHITE );
+            textToDisplay(&I2CDisplay, valueChar);
             break;
 
         default:
@@ -416,6 +454,7 @@ static mdf_err_t mlink_set_value(uint16_t cid, void *arg)
 static mdf_err_t mlink_get_value(uint16_t cid, void *arg)
 {
     int *value = (int *)arg;
+
 
     switch (cid) {
         case LIGHT_CID_STATUS:
@@ -831,13 +870,31 @@ void app_main()
         .fade_period_ms  = CONFIG_LIGHT_FADE_PERIOD_MS,
         .blink_period_ms = CONFIG_LIGHT_BLINK_PERIOD_MS,
     };
-
+    
     /**
      * @brief Set the log level for serial port printing.
      */
     esp_log_level_set("*", ESP_LOG_INFO);
     esp_log_level_set(TAG, ESP_LOG_DEBUG);
 
+    
+    /**
+     * Initilize Oled display
+     */
+    gpio_set_direction(GPIO_NUM_16, GPIO_MODE_OUTPUT);
+
+    gpio_set_level(GPIO_NUM_16, 0);
+    vTaskDelay(50);
+    gpio_set_level(GPIO_NUM_16, 1);
+
+    if ( SSD1306_I2CMasterInitDefault() != true ) {
+        MDF_LOGW("DefaultBusInit() failed");
+    } else {
+        SSD1306_I2CMasterAttachDisplayDefault( &I2CDisplay, I2CDisplayWidth, I2CDisplayHeight, I2CDisplayAddress, I2CResetPin ) ;
+    }
+    setupDisplay( &I2CDisplay, &Font_droid_sans_fallback_11x13 );
+    SSD1306_SetHFlip(&I2CDisplay, true);
+    SSD1306_SetVFlip(&I2CDisplay, true);
     /**
      * @brief Continuous power off and restart more than three times to reset the device
      */
@@ -874,6 +931,9 @@ void app_main()
         MDF_LOGI("mconfig, ssid: %s, password: %s, mesh_id: " MACSTR,
                  ap_config.router_ssid, ap_config.router_password,
                  MAC2STR(ap_config.mesh_id));
+        SSD1306_FontDrawAnchoredString(&I2CDisplay, TextAnchor_South, "Light waiting config", SSD_COLOR_WHITE );
+        SSD1306_FontDrawAnchoredString(&I2CDisplay, TextAnchor_South, "Bluetooth ready", SSD_COLOR_WHITE );
+        textToDisplay(&I2CDisplay, "Connect ESP-Mesh App" );
     }
 
     /**
@@ -909,7 +969,7 @@ void app_main()
      * @brief Add a request handler
      */
     MDF_ERROR_ASSERT(mlink_set_handle("show_layer", light_show_layer));
-
+    textToDisplay( &I2CDisplay, "ESP-MESH Light" );
     /**
      * @brief Initialize esp-mesh
      */
@@ -926,4 +986,7 @@ void app_main()
     TimerHandle_t timer = xTimerCreate("show_system_info", 10000 / portTICK_RATE_MS,
                                        true, NULL, show_system_info_timercb);
     xTimerStart(timer, 0);
+
 }
+
+
