@@ -10,7 +10,7 @@ KEEP IN MIND: That I'm using a Heltec WiFi32 for this example that has a 26Mhz c
     Components -> ESP32-Specific -> Main XTAL frequency -> 26 Mhz for this boards or 40 Mhz for others (Wemos, etc)
 
 I didn't want to Fork a ESP-MDF and keep only a minimal "Light example" that's why I'm leaving branch **master** as is and doing my updates in [develop](https://github.com/martinberlin/esp-mdf-light-oled/tree/develop) branch. 
-
+**Please make sure to clone this repository using the --recursive** option so also the ssd1306 oled display library submodule is downloaded.
 ## Overview
 
 ESP32-MeshKit-Light is a smart lighting solution based on [ESP-MESH](https://docs.espressif.com/projects/esp-idf/en/latest/api-guides/mesh.html). It features network configuration, upgrade, local control, device association, etc., and will facilitate your understanding of ESP-MESH to implement further development. Before running this example, please refer to [ESP32-MeshKit Guide](../README.md).
